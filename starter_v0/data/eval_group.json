@@ -1,7 +1,111 @@
 {
   "dataset_id": "day04_v3_helpdesk_group",
   "dataset_role": "group",
-  "description": "Template intentionally left empty. The team must write exactly 10 original IT helpdesk cases: 5 single-turn query cases and 5 multi-turn turns cases.",
+  "description": "Team-authored eval: exactly 10 original IT helpdesk cases (5 single-turn + 5 multi-turn) targeting one clear routing/argument/boundary decision per case.",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "cases": [
+    {
+      "id": "G01_clarify_missing_asset",
+      "phase": "B",
+      "query": "Kiểm tra security snapshot của máy mình đang dùng.",
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "text"}}]},
+      "metadata": {"skill": "clarify_asset", "difficulty": "medium", "what_it_tests": "Thiếu asset ID phải hỏi, không đoán identifier."}
+    },
+    {
+      "id": "G02_kb_printer_howto",
+      "phase": "B",
+      "query": "Hướng dẫn khắc phục máy in bị kẹt giấy.",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "search_kb", "args": {"category": "printing"}}]},
+      "metadata": {"skill": "route_howto", "difficulty": "easy", "what_it_tests": "Cách xử lý máy in dùng KB, không inspect device hay status."}
+    },
+    {
+      "id": "G03_policy_incident_priority",
+      "phase": "B",
+      "query": "Theo policy, phân loại mức độ ưu tiên của một sự cố như thế nào?",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "policy", "args": {"policy_area": "incident_response"}}]},
+      "metadata": {"skill": "incident_policy", "difficulty": "medium", "what_it_tests": "Câu hỏi phân loại ưu tiên route sang incident_response policy."}
+    },
+    {
+      "id": "G04_format_only_handoff",
+      "phase": "B",
+      "query": "Chỉ trình bày findings này thành handoff report tên 'DT-087 hardware': DIMM B1 lỗi; packet loss 12%. Không kiểm tra lại máy.",
+      "failure_type": "unnecessary_tool",
+      "expect": {"tool_calls": [{"name": "format_incident_report", "args": {"template": "handoff", "incident_title": "DT-087 hardware"}}]},
+      "metadata": {"skill": "format_only_boundary", "difficulty": "hard", "what_it_tests": "Đã có findings thì chỉ format, không refetch."}
+    },
+    {
+      "id": "G05_compare_sso_environments",
+      "phase": "B",
+      "query": "So sánh trạng thái dịch vụ SSO giữa production và staging.",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [
+        {"name": "check_service_status", "args": {"service": "sso", "environment": "production"}},
+        {"name": "check_service_status", "args": {"service": "sso", "environment": "staging"}}
+      ]},
+      "metadata": {"skill": "duplicate_tool_parallel", "difficulty": "hard", "what_it_tests": "Cùng tool gọi hai lần với hai environment, không bỏ sót."}
+    },
+    {
+      "id": "G06_multiturn_fill_printer",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Kiểm tra tình trạng máy in của văn phòng giúp mình."},
+        {"role": "user", "content": "Mã máy in là PR-404."},
+        {"role": "user", "content": "Chỉ xem phần hardware thôi."}
+      ],
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "inspect_device", "args": {"asset_id": "PR-404", "check": "hardware"}}]},
+      "metadata": {"skill": "multiturn_fill_asset", "difficulty": "hard", "what_it_tests": "Carry asset ID từ turn trước để dùng check mới nhất."}
+    },
+    {
+      "id": "G07_multiturn_correct_environment",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Kiểm tra trạng thái email production."},
+        {"role": "user", "content": "À đổi lại, kiểm tra email staging giúp mình."},
+        {"role": "user", "content": "Đúng rồi, chỉ cần staging."}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "check_service_status", "args": {"service": "email", "environment": "staging"}}]},
+      "metadata": {"skill": "multiturn_correction", "difficulty": "hard", "what_it_tests": "Intent mới nhất thắng; không giữ production cũ."}
+    },
+    {
+      "id": "G08_multiturn_confirmed_ticket",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Soạn ticket lỗi print spooler trên DT-031 mức medium."},
+        {"role": "user", "content": "Đổi priority thành high."},
+        {"role": "user", "content": "Thông tin đúng rồi, tôi xác nhận tạo ticket."}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "create_ticket", "args": {"asset_id": "DT-031", "priority": "high", "confirmed": true}}]},
+      "metadata": {"skill": "multiturn_confirmed_action", "difficulty": "hard", "what_it_tests": "Carry nội dung đã sửa và thực thi sau xác nhận rõ."}
+    },
+    {
+      "id": "G09_multiturn_cancel_ticket",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Tạo ticket lỗi VPN trên LT-318."},
+        {"role": "user", "content": "Dừng lại, đừng tạo gì cả."},
+        {"role": "user", "content": "Chỉ cho biết bạn đã hiểu là không tạo ticket nữa."}
+      ],
+      "failure_type": "unnecessary_tool",
+      "expect": {"no_tool": true, "behavior": "answer_without_tool"},
+      "metadata": {"skill": "multiturn_cancel", "difficulty": "hard", "what_it_tests": "Hủy bỏ phải thắng request cũ; không create và không clarify."}
+    },
+    {
+      "id": "G10_multiturn_switch_to_kb",
+      "phase": "B",
+      "turns": [
+        {"role": "user", "content": "Kiểm tra trạng thái Wi-Fi production."},
+        {"role": "user", "content": "Thôi không cần status nữa, tìm hướng dẫn khắc phục Wi-Fi."},
+        {"role": "user", "content": "Chỉ cần bài dành cho Windows."}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "search_kb", "args": {"category": "wifi"}}]},
+      "metadata": {"skill": "multiturn_switch_tool", "difficulty": "hard", "what_it_tests": "Intent mới thay status bằng KB search."}
+    }
+  ]
 }
