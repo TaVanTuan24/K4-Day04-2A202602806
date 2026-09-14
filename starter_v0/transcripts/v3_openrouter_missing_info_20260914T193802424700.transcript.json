@@ -1,0 +1,34 @@
+{
+  "transcript_id": "v3_openrouter_missing_info_20260914T193802424700",
+  "version": "v3",
+  "artifact_version": "v3+p1c2f5b556da5+tb01b6d3f724f",
+  "prompt_hash": "1c2f5b556da5bd395bb9c45d5004c14dd4026170785eed8a296e7ec607301c86",
+  "tools_hash": "b01b6d3f724ff6bccac992262678e2cda3ddb25a1380e53e35a4659923efab29",
+  "provider": "openrouter",
+  "model": "openai/gpt-4o-mini",
+  "system_prompt": "artifacts/system_prompt.md",
+  "tools": "artifacts/tools.yaml",
+  "history_window": 5,
+  "max_tool_rounds": 4,
+  "created_at": "2026-09-14T19:38:02",
+  "updated_at": "2026-09-14T19:38:03",
+  "turns": [
+    {
+      "turn_index": 1,
+      "started_at": "2026-09-14T19:38:03",
+      "user": "Kiểm tra Wi-Fi trên laptop của mình giúp nhé.",
+      "status": "answered",
+      "assistant_text": "Vui lòng cung cấp ID thiết bị của laptop để tôi có thể kiểm tra Wi-Fi cho bạn.",
+      "rounds": [
+        {
+          "round": 1,
+          "assistant_text": "Vui lòng cung cấp ID thiết bị của laptop để tôi có thể kiểm tra Wi-Fi cho bạn.",
+          "tool_calls": [],
+          "tool_results": []
+        }
+      ],
+      "tool_events": [],
+      "ended_at": "2026-09-14T19:38:03"
+    }
+  ]
+}
