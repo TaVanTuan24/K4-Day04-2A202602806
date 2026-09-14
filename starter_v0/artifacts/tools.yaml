@@ -1,5 +1,4 @@
 # Day 04 Lab — tool declarations the model sees.
-# Student: Bùi Minh Quân - 2A202602958
 # Names in this file must stay in sync with tools/__init__.py and the eval cases.
 # Descriptions are part of the prompt: they teach routing, argument conventions,
 # missing-information handling, and confirmation boundaries.
