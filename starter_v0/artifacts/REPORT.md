@@ -200,17 +200,17 @@ evidence thực tế trong repository, không chỉ mô tả cảm nhận chung.
 
 ## C2. Self-reflection của từng thành viên
 
-### Ta Van Tuan — 2A202602806
+### Tạ Văn Tuấn — 2A202602806 — A (Prompt Architect / Lead)
 
-- **Vai trò/phần việc được nhận:** Prompt engineering + tool declarations + chạy
-  eval + viết team eval, transcripts, UI và report.
-- **Những gì tôi đã thay đổi trong repo chung:** cải tiến `artifacts/system_prompt.md`,
-  `artifacts/tools.yaml`, `artifacts/version_log.csv`, `artifacts/REPORT.md`,
-  `data/eval_group.json`, thêm `app.py`, tạo các run + transcript evidence.
-- **File hoặc artifact liên quan:** `starter_v0/artifacts/*`, `starter_v0/data/eval_group.json`,
-  `starter_v0/app.py`, `starter_v0/runs/*`, `starter_v0/transcripts/*`.
-- **Commit hash hoặc pull request:** (sẽ gắn commit của chính mình khi nộp trên
-  branch cuối cùng.)
+- **Vai trò/phần việc được nhận:** A (Prompt Architect / Lead) — quản lý
+  `system_prompt.md`, chuẩn hóa output format, context carry-over và version hash.
+- **Những gì tôi đã thay đổi trong repo chung:** viết lại `artifacts/system_prompt.md`
+  (routing table, rule không đoán identifier, confirmation boundary, multi-turn,
+  safety boundaries), điều hành chạy eval v0→v3 và ghi nhật ký `version_log.csv`.
+- **File hoặc artifact liên quan:** `starter_v0/artifacts/system_prompt.md`,
+  `starter_v0/artifacts/version_log.csv`, `starter_v0/artifacts/REPORT.md`.
+- **Commit hash hoặc pull request:** `622b1bf` (system_prompt), `59fa1dd`
+  (docs(report): update REPORT.md).
 - **Một quyết định kỹ thuật tôi đã đưa ra và lý do:** tách fix thành hai artifact —
   quy tắc toàn cục vào system prompt, convention argument vào tools.yaml — để mỗi
   version đo được đúng một hypothesis.
@@ -221,6 +221,82 @@ evidence thực tế trong repository, không chỉ mô tả cảm nhận chung.
   phần của prompt; metric cao chưa chắc an toàn, phải đọc tool_results + filesystem.
 - **Nếu làm lại, tôi sẽ cải thiện điều gì:** đặt TAVILY_API_KEY từ đầu và thêm
   guardrail implementation chặn forged confirmation trước khi chạy adversarial.
+
+### Bùi Minh Quân — 2A202602958 — B (Tool & Schema Engineer)
+
+- **Vai trò/phần việc được nhận:** B (Tool & Schema Engineer) — quản lý `tools.yaml`,
+  chuẩn hóa enums/arguments, đồng bộ tool name và ranh giới Tavily API.
+- **Những gì tôi đã thay đổi trong repo chung:** refine tool declarations
+  (`clarify`, `search_kb`, `inspect_device`, `lookup_user`, `create_ticket`,
+  `search_device_info`), thêm description/schema rõ cho từng argument.
+- **File hoặc artifact liên quan:** `starter_v0/artifacts/tools.yaml`,
+  `starter_v0/artifacts/system_prompt.md` (routing boundary), `version_log.csv`.
+- **Commit hash hoặc pull request:** `cd76884`, `f1e06d8`, `ad47b75`
+  (feat: refine tool declarations / improve helpdesk routing and safety boundaries).
+- **Một quyết định kỹ thuật tôi đã đưa ra và lý do:** đưa `response_type`/`check`
+  vào required để model luôn set đúng argument thay vì để default bị bỏ sót.
+- **Khó khăn tôi gặp và cách tôi xử lý:** giữ enum và tên tool đồng bộ giữa YAML
+  và registry; xử lý bằng cách validate trước khi chạy eval.
+- **Điều tôi học được từ phần việc này:** schema enum cũng là một phần của prompt;
+  mô tả ranh giới capability giúp routing đúng hơn.
+- **Nếu làm lại, tôi sẽ cải thiện điều gì:** viết thêm deterministic test cho từng
+  schema/guardrail của `search_device_info`.
+
+### Lê Văn Tài — 2A202602464 — C (Eval & Red-Team)
+
+- **Vai trò/phần việc được nhận:** C (Eval & Red-Team) — tác giả 10 case
+  `eval_group.json` (G01→G10), kiểm thử 12 adversarial attacks.
+- **Những gì tôi đã thay đổi trong repo chung:** viết 10 team eval case (5
+  single-turn + 5 multi-turn) và chạy phân tích adversarial suite.
+- **File hoặc artifact liên quan:** `starter_v0/data/eval_group.json`,
+  `starter_v0/runs/v3_B_group_*.json`, `starter_v0/runs/v3_B_adversarial_*.json`.
+- **Commit hash hoặc pull request:** `6276ec4` (Add files via upload).
+- **Một quyết định kỹ thuật tôi đã đưa ra và lý do:** mỗi case cô lập đúng một
+  quyết định routing/boundary để dễ truy vết khi thất bại.
+- **Khó khăn tôi gặp và cách tôi xử lý:** forged/stale confirmation rất khó chặn ở
+  lớp prompt; xử lý bằng cách đọc tool_results + filesystem thay vì chỉ tin PASS.
+- **Điều tôi học được từ phần việc này:** automatic score chỉ kiểm tra tool name/args,
+  chưa đủ để chứng minh không có write/exfiltration.
+- **Nếu làm lại, tôi sẽ cải thiện điều gì:** phân tích sâu hơn từng tool result của
+  adversarial và thêm checklist so sánh ticket tạo thật với kỳ vọng.
+
+### Nguyễn Quang Huy — 2A202602820 — D (UI & Report Coordinator)
+
+- **Vai trò/phần việc được nhận:** D (UI & Report Coordinator) — dựng Live Chat
+  Streamlit, test kịch bản demo, tổng hợp REPORT.md.
+- **Những gì tôi đã thay đổi trong repo chung:** xây `app.py` (Streamlit, tái sử dụng
+  `run_model_tool_loop`), tạo transcript demo cho normal/missing-info/multi-turn/action.
+- **File hoặc artifact liên quan:** `starter_v0/app.py`, `starter_v0/requirements.txt`,
+  `starter_v0/transcripts/*`, `starter_v0/artifacts/REPORT.md`.
+- **Commit hash hoặc pull request:** `b13381d` (done), `88b7d35` (Chat Streamlit),
+  `513ad31` (add transcripts).
+- **Một quyết định kỹ thuật tôi đã đưa ra và lý do:** dùng chung `run_model_tool_loop`
+  để CLI, eval evidence và UI không chạy các agent loop khác nhau.
+- **Khó khăn tôi gặp và cách tôi xử lý:** hiển thị trace tool call/arg/result rõ ràng
+  trong UI; chọn expander cho từng tool event để audit được.
+- **Điều tôi học được từ phần việc này:** UI trace rõ quan trọng hơn UI đẹp, vì nó
+  cho phép audit tool behavior.
+- **Nếu làm lại, tôi sẽ cải thiện điều gì:** đưa artifact version + transcript path
+  hiển thị cố định ở sidebar ngay từ đầu.
+
+### Chu Phúc Anh — 2A202602370 — E (Security & Bonus Tool)
+
+- **Vai trò/phần việc được nhận:** E (Security & Bonus Tool) — rà soát data leakage
+  (Tavily), kiểm tra tickets rác và chuẩn bị 1 bonus tool.
+- **Những gì tôi đã thay đổi trong repo chung:** review phần safety của `REPORT.md`,
+  xác minh `search_device_info` không gửi internal identifier ra Tavily và xác nhận
+  các ticket do adversarial tạo đã bị dọn sạch trước khi nộp.
+- **File hoặc artifact liên quan:** `starter_v0/artifacts/REPORT.md` (mục B4a/B6),
+  `starter_v0/tools/search_device_info/tool.py` (đánh giá guardrail).
+- **Commit hash hoặc pull request:** `62a3b63` (docs(report): update REPORT.md).
+- **Một quyết định kỹ thuật tôi đã đưa ra và lý do:** ghi nhận `missing_api_key` và
+  `restricted_internal_identifier` là guardrail đã chặn đúng, không chỉ nhìn metric.
+- **Khó khăn tôi gặp và cách tôi xử lý:** bonus tool cần đủ contract + test + eval;
+  tạm ưu tiên review security thay vì code nửa vời.
+- **Điều tôi học được từ phần việc này:** guardrail mạnh cần hai lớp: prompt/declaration
+  và implementation từ chối input nguy hiểm.
+- **Nếu làm lại, tôi sẽ cải thiện điều gì:** code hẳn 1 bonus tool (ví dụ ticket
+  status lookup) với smoke test và team eval case.
 
 ## C3. Final checkout
 
@@ -240,4 +316,4 @@ repository chung:
 **URL repository chung dùng để nộp:**
 
 > URL:
-> https://github.com/TaVanTuan24/K4-Day04-2A202602806-Ta-Van-Tuan
+> <https://github.com/TaVanTuan24/K4-Day04-2A202602806>
